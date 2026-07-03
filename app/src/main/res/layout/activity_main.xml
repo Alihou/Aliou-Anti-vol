@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1A1C1F">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Configuration — Sécurité Perso"
+            android:textColor="#E8A33D"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ton numéro (celui qui pourra envoyer les commandes)"
+            android:textColor="#CCCCCC"
+            android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/editOwnerNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="+223XXXXXXXX"
+            android:inputType="phone"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#777777"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Code PIN secret (long, difficile à deviner)"
+            android:textColor="#CCCCCC"
+            android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/editPin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ex : 738492"
+            android:inputType="number"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#777777"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email pour recevoir les photos (optionnel)"
+            android:textColor="#CCCCCC"
+            android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/editEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="tonadresse@gmail.com"
+            android:inputType="textEmailAddress"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#777777"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mot de passe d'application Gmail (pas ton vrai mot de passe — génère-le sur myaccount.google.com/apppasswords)"
+            android:textColor="#888888"
+            android:textSize="12sp"
+            android:layout_marginBottom="6dp" />
+        <EditText
+            android:id="@+id/editAppPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="28dp" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enregistrer la configuration"
+            android:layout_marginBottom="14dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#333333"
+            android:layout_marginBottom="14dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Étapes d'activation (à faire une fois)"
+            android:textColor="#E8A33D"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnPermissions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Autoriser SMS, localisation, caméra"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnDeviceAdmin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. Activer l'administrateur de l'appareil"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnBatteryOpt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3. Désactiver l'optimisation de batterie"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:id="@+id/textStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#7FCF8A"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+</ScrollView>

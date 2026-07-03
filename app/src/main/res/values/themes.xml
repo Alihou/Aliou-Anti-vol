@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.AntiVol" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#2B2E33</item>
+        <item name="colorPrimaryDark">#1A1C1F</item>
+        <item name="colorAccent">#E8A33D</item>
+    </style>
+</resources>

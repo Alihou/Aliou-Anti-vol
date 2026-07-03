@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Sécurité Perso</string>
+    <string name="device_admin_explanation">Nécessaire pour verrouiller ou effacer ton téléphone à distance en cas de vol, et pour empêcher une désinstallation facile de l\'app par un voleur.</string>
+</resources>

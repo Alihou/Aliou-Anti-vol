@@ -1,0 +1,9 @@
+{
+  "name": "Sécurité Perso — Console",
+  "short_name": "Sécurité",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#15171A",
+  "theme_color": "#15171A",
+  "description": "Console de contrôle pour l'app anti-vol personnelle, envoie des commandes SMS."
+}
