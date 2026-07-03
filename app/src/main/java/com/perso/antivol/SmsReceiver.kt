@@ -6,22 +6,6 @@ import android.content.Intent
 import android.provider.Telephony
 import android.util.Log
 
-/**
- * Format des commandes SMS attendu :
- *   AV:<PIN>:<COMMANDE>[:<ARGUMENT>]
- *
- * Exemples :
- *   AV:4471:LOCALISER
- *   AV:4471:VERROUILLER
- *   AV:4471:ALARME
- *   AV:4471:PHOTO
- *   AV:4471:BATTERIE
- *   AV:4471:EFFACER:CONFIRMER      (double confirmation, action destructrice)
- *
- * Sécurité : la commande n'est traitée que si le PIN correspond exactement à
- * celui configuré dans l'app. Choisis un PIN long (pas "1234") — c'est ta
- * seule protection contre une commande envoyée par quelqu'un d'autre que toi.
- */
 class SmsReceiver : BroadcastReceiver() {
 
     companion object {
@@ -31,7 +15,7 @@ class SmsReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
-        if (!Prefs.isConfigured(context)) return // app pas encore configurée
+        if (!Prefs.isConfigured(context)) return
 
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
         val fullBody = messages.joinToString(separator = "") { it.messageBody ?: "" }
@@ -40,7 +24,6 @@ class SmsReceiver : BroadcastReceiver() {
         if (!fullBody.startsWith(PREFIX)) return
 
         val parts = fullBody.trim().split(":")
-        // parts[0] = "AV", parts[1] = PIN, parts[2] = commande, parts[3] (optionnel) = argument
         if (parts.size < 3) return
 
         val pinRecu = parts[1]
@@ -55,18 +38,44 @@ class SmsReceiver : BroadcastReceiver() {
 
         Log.i(TAG, "Commande valide reçue : $commande")
 
-        // On masque le SMS de commande pour ne pas polluer la boîte de réception
-        // (et éviter qu'un voleur ne le voie passer)
         try {
             abortBroadcast()
         } catch (e: Exception) {
             Log.w(TAG, "Impossible d'intercepter le SMS (non prioritaire) : ${e.message}")
         }
+        tenterSuppressionSms(context, sender, fullBody)
 
         val serviceIntent = Intent(context, CommandService::class.java).apply {
             putExtra(CommandService.EXTRA_COMMAND, commande)
             putExtra(CommandService.EXTRA_ARG, argument)
         }
         context.startForegroundService(serviceIntent)
+    }
+
+    private fun tenterSuppressionSms(context: Context, sender: String, body: String) {
+        Thread {
+            try {
+                Thread.sleep(1500)
+                val uri = android.net.Uri.parse("content://sms/inbox")
+                val cursor = context.contentResolver.query(
+                    uri, arrayOf("_id", "address", "body"), null, null, "date DESC LIMIT 5"
+                )
+                cursor?.use {
+                    while (it.moveToNext()) {
+                        val msgBody = it.getString(it.getColumnIndexOrThrow("body"))
+                        if (msgBody == body) {
+                            val id = it.getLong(it.getColumnIndexOrThrow("_id"))
+                            context.contentResolver.delete(
+                                android.net.Uri.parse("content://sms/$id"), null, null
+                            )
+                            Log.i(TAG, "SMS de commande supprimé de la boîte de réception")
+                            break
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Suppression du SMS impossible sur cet appareil : ${e.message}")
+            }
+        }.start()
     }
 }
