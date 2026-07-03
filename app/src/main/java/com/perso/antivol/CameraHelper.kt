@@ -14,13 +14,6 @@ import java.io.FileOutputStream
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-/**
- * Note importante : depuis Android 12, un indicateur visuel (point vert) apparaît
- * à l'écran chaque fois que la caméra est utilisée. C'est une protection système
- * qu'aucune app tierce ne peut désactiver sans root. Pour un usage anti-vol,
- * c'est acceptable — l'objectif est d'identifier qui détient le téléphone, pas
- * une capture totalement invisible.
- */
 object CameraHelper {
 
     suspend fun takePhoto(context: Context, useFrontCamera: Boolean = true): File? {
@@ -29,11 +22,15 @@ object CameraHelper {
         ) return null
 
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        val cameraId = cameraManager.cameraIdList.firstOrNull { id ->
-            val facing = cameraManager.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING)
-            if (useFrontCamera) facing == CameraCharacteristics.LENS_FACING_FRONT
-            else facing == CameraCharacteristics.LENS_FACING_BACK
-        } ?: cameraManager.cameraIdList.firstOrNull() ?: return null
+        val cameraId = try {
+            cameraManager.cameraIdList.firstOrNull { id ->
+                val facing = cameraManager.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING)
+                if (useFrontCamera) facing == CameraCharacteristics.LENS_FACING_FRONT
+                else facing == CameraCharacteristics.LENS_FACING_BACK
+            } ?: cameraManager.cameraIdList.firstOrNull()
+        } catch (e: Exception) {
+            null
+        } ?: return null
 
         val handlerThread = HandlerThread("CameraThread").apply { start() }
         val handler = Handler(handlerThread.looper)
