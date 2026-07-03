@@ -35,7 +35,15 @@ class MainActivity : AppCompatActivity() {
     ) { result ->
         val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
         val admin = ComponentName(this, MyDeviceAdminReceiver::class.java)
-        toast(if (dpm.isAdminActive(admin)) "Administrateur activé." else "Administrateur non activé.")
+        if (dpm.isAdminActive(admin)) {
+            try {
+                dpm.setCameraDisabled(admin, false)
+            } catch (e: Exception) {
+            }
+            toast("Administrateur activé.")
+        } else {
+            toast("Administrateur non activé.")
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
