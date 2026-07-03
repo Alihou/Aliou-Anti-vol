@@ -12,6 +12,7 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
 import android.telephony.SmsManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,17 +38,20 @@ class CommandService : Service() {
         val argument = intent?.getStringExtra(EXTRA_ARG)
 
         scope.launch {
-            when (commande) {
-                "LOCALISER" -> handleLocaliser()
-                "VERROUILLER" -> handleVerrouiller()
-                "ALARME" -> handleAlarme()
-                "PHOTO" -> handlePhoto()
-                "BATTERIE" -> handleBatterie()
-                "EFFACER" -> if (argument == "CONFIRMER") handleEffacer()
-                "VEILLE" -> { /* service juste maintenu actif après boot */ }
+            try {
+                when (commande) {
+                    "LOCALISER" -> handleLocaliser()
+                    "VERROUILLER" -> handleVerrouiller()
+                    "ALARME" -> handleAlarme()
+                    "PHOTO" -> handlePhoto()
+                    "BATTERIE" -> handleBatterie()
+                    "EFFACER" -> if (argument == "CONFIRMER") handleEffacer()
+                    "VEILLE" -> { /* service juste maintenu actif après boot */ }
+                }
+            } catch (e: Throwable) {
+                Log.e("AntiVol-CommandService", "Erreur pendant l'exécution de $commande", e)
+                sendReply("Erreur lors de l'exécution de $commande : ${e.message ?: e.javaClass.simpleName}")
             }
-            // On garde le service actif quelques secondes pour laisser
-            // les opérations async se terminer, puis on l'arrête.
             kotlinx.coroutines.delay(3000)
             stopSelf()
         }
@@ -60,11 +64,9 @@ class CommandService : Service() {
         try {
             @Suppress("DEPRECATION")
             val smsManager = SmsManager.getDefault()
-            // découpe automatiquement si le message dépasse la taille d'un SMS
             val parts = smsManager.divideMessage(text)
             smsManager.sendMultipartTextMessage(owner, null, parts, null, null)
         } catch (e: Exception) {
-            // silencieux : pas de réseau SMS dispo pour le moment
         }
     }
 
@@ -104,7 +106,6 @@ class CommandService : Service() {
                 prepare()
                 start()
             }
-            // Arrête automatiquement après 60 secondes
             android.os.Handler(mainLooper).postDelayed({
                 if (player.isPlaying) player.stop()
                 player.release()
@@ -117,9 +118,11 @@ class CommandService : Service() {
     }
 
     private suspend fun handlePhoto() {
-        val photo = CameraHelper.takePhoto(applicationContext, useFrontCamera = true)
+        val photo = kotlinx.coroutines.withTimeoutOrNull(15000) {
+            CameraHelper.takePhoto(applicationContext, useFrontCamera = true)
+        }
         if (photo == null) {
-            sendReply("Échec de la prise de photo (permission ou caméra indisponible).")
+            sendReply("Échec de la prise de photo (permission, caméra indisponible, ou délai dépassé).")
             return
         }
         val envoye = EmailSender.sendPhoto(
